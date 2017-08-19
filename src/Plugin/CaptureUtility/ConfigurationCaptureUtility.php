@@ -32,9 +32,15 @@ class ConfigurationCaptureUtility extends ConfigurableCaptureUtilityBase {
   public function capture(array $data = []) {
     // Configuration data is stored in $this->configuration. For example:
     $capture_list = $this->configuration['capture_list'];
+    $capture_all = empty($capture_list);
+
+    // If not empty, split up into separate items.
+    if (!$capture_all) {
+      $capture_list = array_map('trim', explode(PHP_EOL, $capture_list));
+      $capture_list = array_combine($capture_list, $capture_list);
+    }
 
     // Determine save file.
-
     // TODO: file_default_scheme() seems like a potentially insecure storage
     // location for config data. This should be evaluated and could potentially
     // get resolved by https://www.drupal.org/node/2901781.
@@ -55,24 +61,23 @@ class ConfigurationCaptureUtility extends ConfigurableCaptureUtilityBase {
     $config_manager = \Drupal::service('config.manager');
     $target_storage = \Drupal::service('config.storage');
 
-    if (empty($capture_list)) {
-      // Get raw configuration data without overrides.
-      foreach ($config_manager->getConfigFactory()->listAll() as $name) {
+    // Get raw configuration data without overrides.
+    foreach ($config_manager->getConfigFactory()->listAll() as $name) {
+      if ($capture_all || array_key_exists($name, $capture_list)) {
         $archiver->addString("$name.yml", Yaml::encode($config_manager->getConfigFactory()->get($name)->getRawData()));
       }
-      // Get all override data from the remaining collections.
-      foreach ($target_storage->getAllCollectionNames() as $collection) {
-        $collection_storage = $target_storage->createCollection($collection);
-        foreach ($collection_storage->listAll() as $name) {
+    }
+    // Get all override data from the remaining collections.
+    foreach ($target_storage->getAllCollectionNames() as $collection) {
+      $collection_storage = $target_storage->createCollection($collection);
+      foreach ($collection_storage->listAll() as $name) {
+        if ($capture_all || array_key_exists($name, $capture_list)) {
           $archiver->addString(str_replace('.', '/', $collection) . "/$name.yml", Yaml::encode($collection_storage->read($name)));
         }
       }
     }
-    else {
-      // TODO: Write this condition.
-    }
 
-    $this->response = new UriCaptureResponse($file_path, $data['url']);
+    $this->response = new UriCaptureResponse($file_location, $data['url']);
 
     return $this;
   }

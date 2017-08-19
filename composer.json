@@ -1,0 +1,21 @@
+{
+    "name": "drupal/configuration_archive",
+    "description": "Performs snapshots of entire or partial Drupal configurations on a periodic basis.",
+    "type": "drupal-module",
+    "require-dev": {
+        "drupal/coder": "8.2.*"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "WidgetsBurritos",
+            "email": "davidstinemetze@gmail.com"
+        }
+    ],
+    "require": {},
+    "scripts": {
+        "phpcs": [
+          "vendor/bin/phpcs --standard=vendor/drupal/coder/coder_sniffer/Drupal/ruleset.xml src/"
+        ]
+    }
+}
