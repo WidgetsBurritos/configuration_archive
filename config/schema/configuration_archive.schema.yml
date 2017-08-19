@@ -1,0 +1,7 @@
+web_page_archive.capture_utility.ca_configuration_capture:
+  type: mapping
+  label: 'Configuration capture utility'
+  mapping:
+    capture_list:
+      type: string
+      label: 'Config capture list (if not full)'
