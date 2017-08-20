@@ -5,8 +5,8 @@ namespace Drupal\configuration_archive\Plugin\CaptureUtility;
 use Drupal\Core\Archiver\ArchiveTar;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Serialization\Yaml;
+use Drupal\configuration_archive\Plugin\CaptureResponse\ConfigurationCaptureResponse;
 use Drupal\web_page_archive\Plugin\ConfigurableCaptureUtilityBase;
-use Drupal\web_page_archive\Plugin\CaptureResponse\UriCaptureResponse;
 
 /**
  * Skeleton capture utility, useful for creating new plugins.
@@ -44,9 +44,11 @@ class ConfigurationCaptureUtility extends ConfigurableCaptureUtilityBase {
     // TODO: file_default_scheme() seems like a potentially insecure storage
     // location for config data. This should be evaluated and could potentially
     // get resolved by https://www.drupal.org/node/2901781.
+    $timestamp = \Drupal::time()->getRequestTime();
+    $date = \Drupal::service('date.formatter')->format($timestamp, 'custom', 'Y-m-d-h-i-s');
     $file_path = \Drupal::service('file_system')->realpath(file_default_scheme() . "://");
     $save_dir = "{$file_path}/configuration-archive/{$data['web_page_archive']->id()}";
-    $file_name = "config-{$data['run_uuid']}.tar.gz";
+    $file_name = "config-{$date}.tar.gz";
     $file_location = "{$save_dir}/{$file_name}";
 
     // If file already exists we should throw an exception.
@@ -77,7 +79,7 @@ class ConfigurationCaptureUtility extends ConfigurableCaptureUtilityBase {
       }
     }
 
-    $this->response = new UriCaptureResponse($file_location, $data['url']);
+    $this->response = new ConfigurationCaptureResponse($file_location, $data['url']);
 
     return $this;
   }

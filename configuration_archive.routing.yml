@@ -1,0 +1,8 @@
+
+configuration_archive.download:
+  path: 'admin/config/system/web-page-archive/configuration/download/{id}/{filename}'
+  defaults:
+    _controller: '\Drupal\configuration_archive\Controller\ConfigurationController::download'
+    _title: 'Download configuration'
+  requirements:
+    _permission: 'administer web page archive'
